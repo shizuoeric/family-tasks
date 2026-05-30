@@ -141,7 +141,7 @@
   .section-badge { font-size: 11px; color: #888; background: #f0f0f0; border-radius: 8px; padding: 1px 7px; }
   .section-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-  .asana-row { display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; min-height: 38px; background: #fff; transition: background 0.08s; }
+  .asana-row { display: flex; align-items: stretch; border-bottom: 1px solid #f0f0f0; background: #fff; transition: background 0.08s; }
   .asana-row:hover { background: #f7f8f9; }
   .asana-row:hover .row-actions { opacity: 1; }
   .asana-row:hover .task-check:not(.checked):not(.in-progress) { border-color: #43a047; }
@@ -151,25 +151,37 @@
   .task-check:hover { border-color: var(--success); }
   .task-check.checked { border-color: var(--success); background: var(--success); }
   .task-check.checked::after { content: '✓'; color: white; font-size: 11px; font-weight: 700; line-height: 1; }
-  .task-check.in-progress { border-color: var(--warning); border-style: solid; background: linear-gradient(to right, var(--warning) 50%, #fff 50%); }
+  .task-check.in-progress { border-color: var(--warning); background: linear-gradient(to right, var(--warning) 50%, #fff 50%); }
 
+  /* Desktop: task name + side fields in one row */
   .row-title { flex: 1; min-width: 0; padding: 0 12px 0 0; border-right: 1px solid #e8e8e8; display: flex; align-items: center; gap: 6px; }
   .title-text { font-size: 13px; color: #1a1a1a; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 9px 0; }
   .title-text:hover { color: var(--primary); }
   .title-text.done-text { text-decoration: line-through; color: #aaa; }
-
   .row-field { width: 15%; min-width: 80px; flex-shrink: 1; padding: 0 12px; border-right: 1px solid #e8e8e8; font-size: 13px; color: #444; display: flex; align-items: center; min-height: 38px; overflow: hidden; }
   .row-field:last-child { border-right: none; }
   .row-field.muted { color: #aaa; }
 
-  .avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; flex-shrink: 0; }
-  .avatar-group { display: flex; gap: -4px; }
-  .avatar + .avatar { margin-left: -6px; }
+  /* Mobile: two-line layout */
+  .row-main { display: none; flex: 1; min-width: 0; flex-direction: column; justify-content: center; padding: 8px 8px 8px 0; gap: 4px; }
+  .row-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .row-meta-item { font-size: 11px; color: #888; display: flex; align-items: center; gap: 3px; }
 
-  .row-actions { opacity: 0; display: flex; gap: 2px; margin-left: auto; padding-right: 8px; }
+  .avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: white; flex-shrink: 0; }
+  .avatar + .avatar { margin-left: -5px; }
+
+  .row-actions { opacity: 0; display: flex; gap: 2px; align-self: center; padding-right: 8px; flex-shrink: 0; }
 
   .add-row-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 44px; font-size: 13px; color: #aaa; cursor: pointer; border: none; background: none; width: 100%; text-align: left; border-bottom: 1px solid #e8e8e8; transition: color 0.1s; }
   .add-row-btn:hover { color: var(--primary); background: #f0f4ff; }
+
+  @media (max-width: 640px) {
+    .asana-col-header { display: none; }
+    .row-title { display: none; }
+    .row-field { display: none; }
+    .row-main { display: flex; }
+    .row-actions { opacity: 1; }
+  }
 
   .tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
   .priority-high { background: #fde8e8; color: #c62828; }
@@ -749,10 +761,18 @@ function renderList(proj) {
     const rows = secTasks.map(t => {
       const overdue = t.due && t.due < today && !isDone;
       const checkClass = t.status === 'done' ? 'checked' : t.status === 'progress' ? 'in-progress' : '';
+      const shortDate = t.due ? t.due.slice(5).replace('-', '/') : '';  // "2026-06-05" → "06/05"
+      const metaParts = [
+        t.owner ? `<span class="row-meta-item">${avatarHtml(t.owner)}</span>` : '',
+        t.customer ? `<span class="row-meta-item" style="color:#5c6bc0">${avatarHtml(t.customer)}</span>` : '',
+        shortDate ? `<span class="row-meta-item" style="${overdue?'color:#e53935':''}">📅 ${shortDate}</span>` : '',
+        t.priority ? `<span class="tag ${priorityClass[t.priority]}">${priorityLabel[t.priority]}</span>` : '',
+      ].filter(Boolean).join('');
       return `<div class="asana-row">
         <div class="row-check">
-          <div class="task-check ${checkClass}" onclick="cycleStatus('${t.id}')" title="切换状态"></div>
+          <div class="task-check ${checkClass}" onclick="cycleStatus('${t.id}')"></div>
         </div>
+        <!-- Desktop layout -->
         <div class="row-title">
           <span class="title-text ${isDone ? 'done-text' : ''}" onclick="openTaskModal(null,'${t.id}')">${t.title}</span>
           <div class="row-actions">
@@ -761,9 +781,17 @@ function renderList(proj) {
           </div>
         </div>
         <div class="row-field"><div style="display:flex;gap:3px;align-items:center;">${avatarHtml(t.owner)}</div></div>
-        <div class="row-field hide-mobile"><div style="display:flex;gap:3px;align-items:center;">${avatarHtml(t.customer)}</div></div>
+        <div class="row-field"><div style="display:flex;gap:3px;align-items:center;">${avatarHtml(t.customer)}</div></div>
         <div class="row-field ${overdue ? '' : 'muted'}" style="${overdue ? 'color:#e53935' : ''}">${t.due || '—'}</div>
-        <div class="row-field hide-mobile">${t.priority ? `<span class="tag ${priorityClass[t.priority]}">${priorityLabel[t.priority]}</span>` : '<span style="color:#ccc">—</span>'}</div>
+        <div class="row-field">${t.priority ? `<span class="tag ${priorityClass[t.priority]}">${priorityLabel[t.priority]}</span>` : '<span style="color:#ccc">—</span>'}</div>
+        <!-- Mobile layout -->
+        <div class="row-main" onclick="openTaskModal(null,'${t.id}')">
+          <span class="title-text ${isDone ? 'done-text' : ''}">${t.title}</span>
+          <div class="row-meta">${metaParts}</div>
+        </div>
+        <div class="row-actions" style="opacity:1">
+          <button class="icon-btn" onclick="deleteTask('${t.id}')">🗑️</button>
+        </div>
       </div>`;
     }).join('');
 
