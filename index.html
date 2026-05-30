@@ -42,14 +42,17 @@
     .content { padding: 12px; }
     .stats-bar { flex-direction: column; gap: 8px; }
     .home-grid { grid-template-columns: 1fr; }
-    .asana-col-header .col-field { width: 100px; }
-    .row-field { width: 100px; }
     .bottom-nav { display: flex !important; }
     .btn-ghost { font-size: 11px; padding: 4px 8px; }
     .btn-primary { font-size: 12px; padding: 6px 10px; }
     .kanban { flex-direction: column; }
     .kanban-col { width: 100%; }
     .modal { width: 95vw; }
+    /* Table: hide less important columns on mobile */
+    .col-field.hide-mobile { display: none; }
+    .row-field.hide-mobile { display: none; }
+    .asana-col-header .col-field { width: 90px; }
+    .row-field { width: 90px; }
   }
 
   /* Bottom nav (mobile only) */
@@ -735,9 +738,9 @@ function renderList(proj) {
   const colHeader = `<div class="asana-col-header">
     <div class="col-task">Task name</div>
     <div class="col-field">Assignee</div>
-    <div class="col-field">Customer</div>
+    <div class="col-field hide-mobile">Customer</div>
     <div class="col-field">Due date</div>
-    <div class="col-field">Priority</div>
+    <div class="col-field hide-mobile">Priority</div>
   </div>`;
 
   const sectionsHtml = sections.map(sec => {
@@ -758,9 +761,9 @@ function renderList(proj) {
           </div>
         </div>
         <div class="row-field"><div style="display:flex;gap:3px;align-items:center;">${avatarHtml(t.owner)}</div></div>
-        <div class="row-field"><div style="display:flex;gap:3px;align-items:center;">${avatarHtml(t.customer)}</div></div>
+        <div class="row-field hide-mobile"><div style="display:flex;gap:3px;align-items:center;">${avatarHtml(t.customer)}</div></div>
         <div class="row-field ${overdue ? '' : 'muted'}" style="${overdue ? 'color:#e53935' : ''}">${t.due || '—'}</div>
-        <div class="row-field">${t.priority ? `<span class="tag ${priorityClass[t.priority]}">${priorityLabel[t.priority]}</span>` : '<span style="color:#ccc">—</span>'}</div>
+        <div class="row-field hide-mobile">${t.priority ? `<span class="tag ${priorityClass[t.priority]}">${priorityLabel[t.priority]}</span>` : '<span style="color:#ccc">—</span>'}</div>
       </div>`;
     }).join('');
 
