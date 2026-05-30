@@ -51,8 +51,8 @@
     /* Table: hide less important columns on mobile */
     .col-field.hide-mobile { display: none; }
     .row-field.hide-mobile { display: none; }
-    .asana-col-header .col-field { width: 90px; }
-    .row-field { width: 90px; }
+    .asana-col-header .col-field { min-width: 60px; }
+    .row-field { min-width: 60px; }
   }
 
   /* Bottom nav (mobile only) */
@@ -129,7 +129,7 @@
   .asana-wrap { background: var(--surface); }
   .asana-col-header { display: flex; align-items: center; border-bottom: 1px solid #e8e8e8; background: #fafafa; position: sticky; top: 0; z-index: 2; }
   .asana-col-header .col-task { flex: 1; min-width: 0; padding: 8px 12px 8px 44px; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.4px; border-right: 1px solid #e8e8e8; }
-  .asana-col-header .col-field { width: 140px; flex-shrink: 0; padding: 8px 12px; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.4px; border-right: 1px solid #e8e8e8; }
+  .asana-col-header .col-field { width: 15%; min-width: 80px; flex-shrink: 1; padding: 8px 12px; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.4px; border-right: 1px solid #e8e8e8; }
   .asana-col-header .col-field:last-child { border-right: none; }
 
   .asana-section { margin-bottom: 0; }
@@ -158,7 +158,7 @@
   .title-text:hover { color: var(--primary); }
   .title-text.done-text { text-decoration: line-through; color: #aaa; }
 
-  .row-field { width: 140px; flex-shrink: 0; padding: 0 12px; border-right: 1px solid #e8e8e8; font-size: 13px; color: #444; display: flex; align-items: center; min-height: 38px; overflow: hidden; }
+  .row-field { width: 15%; min-width: 80px; flex-shrink: 1; padding: 0 12px; border-right: 1px solid #e8e8e8; font-size: 13px; color: #444; display: flex; align-items: center; min-height: 38px; overflow: hidden; }
   .row-field:last-child { border-right: none; }
   .row-field.muted { color: #aaa; }
 
